@@ -22,8 +22,8 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: cd ./back && npm ci
-    - run: cd ./back && npm test
+    - run: npm ci
+    - run: npm test
       env:
           TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}
           SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
