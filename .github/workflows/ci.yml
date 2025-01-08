@@ -1,0 +1,34 @@
+name: dumb_task_CI
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - name: Install dependencies in ./back
+      run: |
+        cd ./back
+        npm ci
+    - name: Run tests in ./back
+      run: |
+        cd ./back
+        npm test
+      env:
+        TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}
+        SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+        PORT: ${{ secrets.PORT }}
+        COOKIE_SECRET: ${{ secrets.COOKIE_SECRET }}
