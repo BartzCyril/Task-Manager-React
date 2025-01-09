@@ -27,7 +27,7 @@ function createServer () {
     const adminRoutes = require('./routes/admin');
 
     app.use('/auth', authRoutes);
-    app.use('/', taskRoutes);
+    app.use('/todos', taskRoutes);
     app.use('/admin', adminRoutes)
 
     return app;

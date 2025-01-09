@@ -67,12 +67,12 @@ router.post('/', [loggedMiddleware, checkValidityOfTheToken], (req, res) => {
         return;
     }
     
-    tasks.createTask({ user_id: userId, title, description, completed: false }, (err) => {
+    tasks.createTask({ user_id: userId, title, description, completed: false }, (err, id) => {
         if (err) {
             res.status(500).send({message :`Une erreur est survenue lors de la création de la tâche ${err.message}`});
             return;
         }
-        res.status(201).send({message: "La tâche a bien été créée"});
+        res.status(201).send({message: "La tâche a bien été créée", data: {title, description, completed: false, user_id: userId, id}});
     })
 });
 
