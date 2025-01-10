@@ -3,4 +3,4 @@
 *.DS_Store
 /config/db.js
 .idea
-.env.sample
+.env

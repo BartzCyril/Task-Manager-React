@@ -31,6 +31,7 @@ router.get('/', (req, res) => {
 
 router.delete('/:id', [loggedMiddleware, checkValidityOfTheToken], (req, res) => {
     const id = req.params.id;
+
     tasks.getTaskById(id, (err, task) => {
         if (err) {
             res.status(500).send({message: `Une erreur est survenue lors de la récupération de la tâche ${err.message}`});
@@ -78,7 +79,7 @@ router.post('/', [loggedMiddleware, checkValidityOfTheToken], (req, res) => {
 
 router.put('/', [loggedMiddleware, checkValidityOfTheToken], (req, res) => {
     const { id, title, description, completed } = req.body;
-
+    console.log(req.body);
     tasks.getTaskById(parseInt(id), (err, task) => {
         if(err){
             res.status(500).send({message :`Une erreur est survenue lors de la récupération de la tâche ${err.message}`});
@@ -92,7 +93,7 @@ router.put('/', [loggedMiddleware, checkValidityOfTheToken], (req, res) => {
                     res.status(500).send({message :`Une erreur est survenue lors de la modification de la tâche ${err.message}`});
                     return;
                 }
-                res.status(204).send({message: "La tâche a bien été modifiée"});
+                res.status(200).send({message: "La tâche a bien été modifiée", data: {id, title, description, completed, user_id: task.user_id}});
             })
         }
     });

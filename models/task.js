@@ -1,4 +1,4 @@
-const db = require('../config/database.js')
+const db = require('../config/database.js');
 
 const Task = {
     createTable: (callback) => {
@@ -9,6 +9,7 @@ const Task = {
                 description TEXT,
                 completed INTEGER DEFAULT 0,
                 user_id INTEGER NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
         `;
@@ -27,12 +28,12 @@ const Task = {
 
     createTask: (task, callback) => {
         const query = 'INSERT INTO tasks (title, description, completed, user_id) VALUES (?, ?, ?, ?)';
-        const params = [task.title, task.description, task.completed, task.user_id]
+        const params = [task.title, task.description, task.completed, task.user_id];
         db.run(query, params, function (err) {
-            callback(err, { id: this.lastID });
+            callback(err, {id: this.lastID});
         });
     },
-    
+
     getAllTaskByUserId: (userId, callback) => {
         const query = 'SELECT * FROM tasks WHERE user_id = ?';
         db.all(query, [userId], (err, rows) => {
@@ -55,7 +56,7 @@ const Task = {
         `;
         const params = [task.title, task.description, task.completed, task.id];
         db.run(query, params, function (err) {
-            callback(err, { id: task.id });
+            callback(err, {id: task.id});
         });
     },
 
@@ -65,7 +66,7 @@ const Task = {
             if (this.changes === 0) {
                 callback(new Error('Tâche non trouvée'), null);
             } else {
-                callback(err, { id });
+                callback(err, {id});
             }
         });
     }

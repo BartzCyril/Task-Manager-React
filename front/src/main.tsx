@@ -8,8 +8,8 @@ import './css/index.css'
 import Auth from "./pages/Auth.tsx";
 import Admin from "./pages/Admin.tsx";
 import NotFound from "./pages/NotFound.tsx";
-import CreateTask from "./pages/CreateTask.tsx";
-import UpdateTask from "./pages/UpdateTask.tsx";
+import Task from "./pages/Task.tsx";
+import { ToastContainer } from 'react-toastify';
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
@@ -21,9 +21,10 @@ createRoot(document.getElementById('root')!).render(
                 <Route path={"/register"} element={<Auth/>}/>
                 <Route path={"/admin"} element={<Admin/>}/>
                 <Route path={"*"} element={<NotFound/>}/>
-                <Route path={"/task/create"} element={<CreateTask/>}/>
-                <Route path={"/task/update/:id"} element={<UpdateTask/>}/>
+                <Route path={"/task/create"} element={<Task/>}/>
+                <Route path={"/task/update/:id"} element={<Task/>}/>
             </Routes>
+            <ToastContainer aria-label={""} closeButton={true} position={"bottom-center"}/>
             <Footer/>
         </BrowserRouter>
     </StrictMode>,

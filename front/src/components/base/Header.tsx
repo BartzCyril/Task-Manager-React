@@ -1,6 +1,9 @@
 import {Link} from "react-router";
-import {useUserStore} from "../../store.ts";
-import {Role} from "../../types/types.ts";
+import {useTaskStore, useUserStore} from "../../store.ts";
+import {AuthStatus, Role} from "../../types/types.ts";
+import {useState} from "react";
+import Spinner from "../spinner/Spinner.tsx";
+import {toast} from "react-toastify";
 
 type HeaderLinkProps = {
     to: string;
@@ -17,7 +20,10 @@ const HeaderLink = ({to, description}: HeaderLinkProps) => {
 }
 
 const Header = () => {
-    const user = useUserStore().user;
+    const user = useUserStore(state => state.user);
+    const logout = useUserStore(state => state.logout);
+    const [loading, setLoading] = useState(false);
+    const deleteAllTasks = useTaskStore(state => state.deleteAllTasks);
 
     return (
         <header>
@@ -31,14 +37,40 @@ const Header = () => {
                     <div className="flex items-center lg:order-2">
                         {!user &&
                             <>
-                                <HeaderLink to={"/login"} description={"Connexion"} />
-                                <HeaderLink to={"/register"} description={"Inscription"} />
+                                <HeaderLink to={"/login"} description={"Connexion"}/>
+                                <HeaderLink to={"/register"} description={"Inscription"}/>
                             </>
                         }
-                        {user && <p className="text-gray-800 dark:text-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-xs px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800">Bonjour {user.username}</p>}
-                        <HeaderLink to={"/task/create"} description={"Ajouter une tâche"} />
-                        {user && (user.role === Role.ADMIN || user.role === Role.SUPER_ADMIN) && <HeaderLink to={"/admin"} description={"Admin"} />}
-                        {user && <HeaderLink to={"/logout"} description={"Déconnexion"} />}
+                        {user &&
+                            <p className="text-gray-800 dark:text-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-xs px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800">Bonjour {user.username}</p>}
+                        <HeaderLink to={"/task/create"} description={"Ajouter une tâche"}/>
+                        {user && (user.role === Role.ADMIN || user.role === Role.SUPER_ADMIN) &&
+                            <HeaderLink to={"/admin"} description={"Admin"}/>}
+                        {user && <button onClick={() => {
+                            setLoading(true);
+                            logout()
+                                .then((result) => {
+                                    if (typeof result === "string") {
+                                        if (result === AuthStatus.NOT_AUTHENTICATED) {
+                                            logout(true);
+                                            toast("Déconnexion réussie", {type: "success"});
+                                        } else {
+                                            toast(result, {type: "error"});
+                                        }
+                                    } else {
+                                        toast("Déconnexion réussie", {type: "success"});
+                                    }
+                                }).finally(() => {
+                                setLoading(false);
+                                deleteAllTasks();
+                            });
+                        }}
+                                         className="text-gray-800 dark:text-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-xs px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800">
+                            <div className={"flex"}>
+                                Déconnexion
+                                {loading && <Spinner/>}
+                            </div>
+                        </button>}
                     </div>
                 </div>
             </nav>

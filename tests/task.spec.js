@@ -141,7 +141,7 @@ describe("Tests fonctionnels pour task", () => {
         request(server)
             .put('/')
             .send({ id: 3, title: "Task 1", description: "Description of task 1", completed: 1 })
-            .expect(204)
+            .expect(200)
             .end(done);
     });
 

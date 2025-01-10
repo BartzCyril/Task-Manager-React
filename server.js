@@ -5,9 +5,11 @@ function createServer () {
     const session = require('express-session');
     const dotenv = require('dotenv');
     const cookieParser = require('cookie-parser');
+    const cors = require('cors');
 
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(bodyParser.json());
+    app.use(cors({credentials: true, origin: "http://localhost:5173"}));
     dotenv.config();
     app.use(session({
         secret: process.env.SESSION_SECRET,

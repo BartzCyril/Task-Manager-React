@@ -4,13 +4,13 @@ function checkValidityOfTheToken(req, res, next) {
     const token = req.cookies.token;
 
     if (token == null){
-        res.status(401).send({message: 'Vous n\'avez pas les droits pour accéder à cette page'});
+        res.status(401).send({message: "Vous n'êtes plus connecté"});
         return;
     }
 
     jwt.verify(token, process.env.TOKEN_SECRET, (err, user) => {
         if(err){
-            res.status(403).send({message: 'Vous n\'avez pas les droits pour accéder à cette page'});
+            res.status(401).send({message: "Vous n'êtes plus connecté"});
         }
 
         req.user = user;

@@ -1,8 +1,10 @@
 import {SubmitHandler, useForm} from "react-hook-form";
 import Input from "../components/input/Input.tsx";
 import {useUserStore} from "../store.ts";
-import {useEffect} from "react";
-import {useNavigate} from "react-router";
+import {useEffect, useState} from "react";
+import {Link, useNavigate} from "react-router";
+import Spinner from "../components/spinner/Spinner.tsx";
+import {toast} from "react-toastify";
 
 type Inputs = {
     email: string;
@@ -16,7 +18,8 @@ const LoginForm = () => {
         register,
         handleSubmit,
         formState: {errors},
-        watch
+        watch,
+        reset
     } = useForm<Inputs>({
         mode: "onChange"
     });
@@ -24,20 +27,85 @@ const LoginForm = () => {
     const navigate = useNavigate();
     const isLogin = window.location.pathname === "/login";
     const user = useUserStore().user;
+    const [loading, setLoading] = useState(false);
+
+    const validatePassword = (value: string) => {
+        const errors: string[] = [];
+
+        if (!/[a-z]/.test(value)) {
+            errors.push("Le mot de passe doit contenir au moins une lettre minuscule.");
+        }
+
+        if (!/[A-Z]/.test(value)) {
+            errors.push("Le mot de passe doit contenir au moins une lettre majuscule.");
+        }
+
+        if (!/\d/.test(value)) {
+            errors.push("Le mot de passe doit contenir au moins un chiffre.");
+        }
+
+        if (!/[!@#$%^&*()_+=[\]{}|;:'",.<>?/~`]/.test(value)) {
+            errors.push("Le mot de passe doit contenir au moins un caractère spécial.");
+        }
+
+        if (errors.length > 0) {
+            return errors;
+        }
+
+        return true;
+    }
+
+    const formattedErrors = (errors: Array<string>) => {
+        return errors
+            .map((error, index) => {
+                let formattedError = error.replace(/\.$/, "");
+
+                if (index > 0) {
+                    formattedError = formattedError.charAt(0).toLowerCase() + formattedError.slice(1);
+                }
+
+                return formattedError;
+            })
+            .join(" et ");
+    }
 
     useEffect(() => {
         if (user) {
             navigate("/");
+        } else {
+            reset({
+                email: "",
+                username: "",
+                password: "",
+                confirmPassword: ""
+            });
         }
-    }, []);
+    }, [location.pathname, user, reset])
 
-    const auth = useUserStore(state => {
-        return isLogin ? state.login : state.register;
-    })
+    const authLogin = useUserStore((state) => state.login);
+    const authRegister = useUserStore((state) => state.register);
 
     const onSubmit: SubmitHandler<Inputs> = (data) => {
-        console.log(data);
-    }
+        setLoading(true);
+
+        const { username, password, email, confirmPassword } = data;
+
+        const authPromise = isLogin
+            ? authLogin(username, password)
+            : authRegister(email, username, password, confirmPassword);
+
+        authPromise
+            .then((result) => {
+                if (typeof result === "boolean" && result) {
+                    isLogin ? navigate("/") : navigate("/login");
+                } else {
+                    toast(result, { type: "error", toastId: "auth" });
+                }
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    };
 
     const password = watch("password");
 
@@ -46,7 +114,7 @@ const LoginForm = () => {
             <form onSubmit={handleSubmit(onSubmit)} className="bg-white p-8 rounded-lg shadow-md w-96">
                 <h2 className="text-2xl font-bold mb-6 text-gray-700 text-center">{isLogin ? "Connexion" : "Inscription"}</h2>
 
-                <Input
+                {!isLogin && <Input
                     id="email"
                     label="Adresse email"
                     type="email"
@@ -60,9 +128,9 @@ const LoginForm = () => {
                         },
                     }}
                     errors={errors as any}
-                />
+                />}
 
-                {!isLogin && <Input
+                <Input
                     id="username"
                     label="Nom d'utilisateur"
                     type="text"
@@ -76,7 +144,7 @@ const LoginForm = () => {
                         },
                     }}
                     errors={errors as any}
-                />}
+                />
 
                 <Input
                     id="password"
@@ -87,12 +155,20 @@ const LoginForm = () => {
                     validationRules={{
                         required: "Le mot de passe est obligatoire.",
                         minLength: {
-                            value: 6,
-                            message: "Le mot de passe doit contenir au moins 6 caractères.",
+                            value: 8,
+                            message: "Le mot de passe doit contenir au moins 8 caractères.",
                         },
+                        validate: (value: string) => {
+                            const errors = validatePassword(value);
+                            if (Array.isArray(errors)) {
+                                return formattedErrors(errors);
+                            }
+                            return true;
+                        }
                     }}
                     errors={errors as any}
                 />
+
 
                 {!isLogin && <Input
                     id="confirmPassword"
@@ -103,12 +179,18 @@ const LoginForm = () => {
                     validationRules={{
                         required: "Le mot de passe est obligatoire.",
                         minLength: {
-                            value: 6,
-                            message: "Le mot de passe doit contenir au moins 6 caractères.",
+                            value: 8,
+                            message: "Le mot de passe doit contenir au moins 8 caractères.",
                         },
                         validate: (value: string) => {
+                            const errors = validatePassword(value);
                             if (value !== password) {
-                                return "Les mots de passe ne correspondent pas.";
+                                if (Array.isArray(errors)) {
+                                    errors.push("Les mots de passe ne correspondent pas.");
+                                    return formattedErrors(errors);
+                                } else {
+                                    return "Les mots de passe ne correspondent pas.";
+                                }
                             }
                             return true;
                         },
@@ -116,10 +198,22 @@ const LoginForm = () => {
                     errors={errors as any}
                 />}
 
-                <button type="submit"
-                        className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50">
-                    {isLogin ? "Se connecter" : "S'inscrire"}
-                </button>
+                <div className={"flex"}>
+                    <button type="submit"
+                            className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50">
+                        {isLogin ? "Se connecter" : "S'inscrire"}
+                    </button>
+                    {loading && <Spinner/>}
+                </div>
+
+                {isLogin && (
+                    <p className="mt-4 text-center text-gray-600">
+                        Vous n'avez pas de compte ?
+                        <Link to="/register" className="ml-2 text-blue-600 font-semibold hover:text-blue-700">
+                            S'inscrire
+                        </Link>
+                    </p>
+                )}
             </form>
         </div>
     );

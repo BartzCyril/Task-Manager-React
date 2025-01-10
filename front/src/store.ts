@@ -1,109 +1,158 @@
-import { create } from "zustand/react";
-import { Todo, User } from "./types/types.ts";
-import { api } from "./api/api.ts";
+import {create} from "zustand/react";
+import {TypeTask, User} from "./types/types.ts";
+import {api} from "./api/api.ts";
+import {createJSONStorage, persist} from "zustand/middleware";
 
-type TodoStore = {
-    todos: Array<Todo>;
-    updateTodos: (todo: Partial<Todo>, inLocalStorage: boolean) => Promise<true | string>;
-    getTodos: (inLocalStorage: boolean) => Promise<true | string>;
-    deleteTodo: (id: number, inLocalStorage: boolean) => Promise<true | string>;
+type TaskStore = {
+    tasks: Array<TypeTask>;
+    updateTasks: (todo: TypeTask, callServer: boolean) => Promise<true | string>;
+    createTask: (todo: TypeTask, callServer: boolean) => Promise<true | string>;
+    getTasks: (callServer: boolean) => Promise<true | string>;
+    deleteTask: (id: number, callServer: boolean) => Promise<true | string>;
+    deleteAllTasks: () => void;
 };
 
-export const useTodoStore = create<TodoStore>((set) => ({
-    todos: [],
-
-    async getTodos(inLocalStorage) {
-        try {
-            if (inLocalStorage) {
-                const todos = localStorage.getItem('todos');
-                if (todos) {
-                    set(() => ({ todos: JSON.parse(todos) }));
+export const useTaskStore = create(
+    persist<TaskStore>(
+        (set, get) => ({
+            tasks: [],
+            async getTasks(callServer) {
+                try {
+                    if (callServer) {
+                        const tasks = await api('GET', '/todos');
+                        set({tasks: tasks.data});
+                        return true;
+                    }
+                } catch (error: any) {
+                    return error.message;
                 }
-                return true;
-            } else {
-                const todos = await api('GET', "/todos");
-                set(() => ({ todos }));
-                return true;
-            }
-        } catch (error: any) {
-            return error.message;
-        }
-    },
+            },
 
-    async updateTodos(newTodo, inLocalStorage) {
-        try {
-            if (inLocalStorage) {
-                const newTodos = useTodoStore.getState().todos.map((todo) =>
-                    todo.id === newTodo.id ? { ...todo, ...newTodo } : todo
-                );
-                localStorage.setItem('todos', JSON.stringify(newTodos));
-                set(() => ({ todos: newTodos }));
-                return true;
-            } else {
-                const result = await api('POST', '/todos', newTodo);
-                const newTodos = [...useTodoStore.getState().todos, result.data];
-                set(() => ({ todos: newTodos }));
-                return true;
-            }
-        } catch (error: any) {
-            return error.message;
-        }
-    },
+            async createTask(newTodo, callServer) {
+                try {
+                    if (callServer) {
+                        const task = await api('POST', '/todos', newTodo);
+                        set({tasks: [...get().tasks, task.data]});
+                        return true;
+                    } else {
+                        const lastId = get().tasks.length > 0 ? get().tasks[get().tasks.length - 1].id : 0;
+                        set({
+                            tasks: [...get().tasks, {
+                                title: newTodo.title,
+                                description: newTodo.description,
+                                id: lastId + 1,
+                                completed: false,
+                                user_id: 0,
+                                created_at: new Date()
+                            }]
+                        });
+                        return true;
+                    }
+                } catch (error: any) {
+                    return error.message;
+                }
+            },
 
-    async deleteTodo(id, inLocalStorage) {
-        try {
-            const newTodos = [...useTodoStore.getState().todos].filter((todo) => todo.id !== id);
-            if (inLocalStorage) {
-                localStorage.setItem('todos', JSON.stringify(newTodos));
-                set(() => ({ todos: newTodos }));
-                return true;
-            } else {
-                await api('DELETE', `/todos/${id}`);
-                set(() => ({ todos: newTodos }));
-                return true;
+            async updateTasks(newTodo, callServer) {
+                try {
+                    if (callServer) {
+                        const updatedTask = await api('PUT', '/todos', newTodo);
+                        const newTasks = get().tasks.map((task) => {
+                            if (task.id === newTodo.id) {
+                                return updatedTask.data;
+                            }
+                            return task;
+                        });
+                        set({tasks: newTasks});
+                        return true;
+                    } else {
+                        const newTasks = get().tasks.map((task) => {
+                            if (task.id === newTodo.id) {
+                                return {...task, ...newTodo};
+                            }
+                            return task;
+                        });
+                        set({tasks: newTasks});
+                        return true;
+                    }
+                } catch (error: any) {
+                    return error.message;
+                }
+            },
+
+            async deleteTask(id, callServer) {
+                try {
+                    const newTasks = get().tasks.filter((task) => task.id !== id);
+                    if (callServer) {
+                        await api('DELETE', `/todos/${id}`);
+                    }
+                    set({tasks: newTasks});
+                } catch (error: any) {
+                    return error.message;
+                }
+            },
+
+            deleteAllTasks() {
+                set({tasks: []});
             }
-        } catch (error: any) {
-            return error.message;
+        }),
+        {
+            name: 'tasks'
         }
-    },
-}));
+    )
+);
 
 type UserStore = {
     user: User | null;
-    login(email: string, password: string): Promise<true | string>;
+    login(username: string, password: string): Promise<true | string>;
     register(email: string, username: string, password: string, confirmPassword: string): Promise<true | string>;
-    logout(): Promise<true | string>;
+    logout(callServer?: boolean): Promise<true | string>;
 };
 
-export const useUserStore = create<UserStore>((set) => ({
-    user: null,
+export const useUserStore = create(
+    persist<UserStore>(
+        (set) => ({
+            user: null,
 
-    async login(email, password) {
-        try {
-            const result = await api('POST', '/auth/login', { email, password });
-            set(() => ({ user: result.data }));
-            return true;
-        } catch (error: any) {
-            return error.message;
-        }
-    },
+            async login(username, password) {
+                try {
+                    const result = await api('POST', '/auth/login', {
+                        username,
+                        password,
+                        todos: useTaskStore.getState().tasks
+                    });
+                    const user = result.data;
+                    set(() => ({user}));
+                    return true;
+                } catch (error: any) {
+                    return error.message;
+                }
+            },
 
-    async register(email, username, password, confirmPassword) {
-        try {
-            await api('POST', '/auth/register', { email, username, password, confirmPassword });
-            return true;
-        } catch (error: any) {
-            return error.message;
-        }
-    },
+            async register(email, username, password, confirmPassword) {
+                try {
+                    await api('POST', '/auth/register', {email, username, password, confirmPassword});
+                    return true;
+                } catch (error: any) {
+                    return error.message;
+                }
+            },
 
-    async logout() {
-        try {
-            await api('GET', '/auth/logout');
-            set(() => ({ user: null }));
-            return true;
-        } catch (error: any) {
-            return error.message;
+            async logout(callServer = true) {
+                try {
+                    if (callServer)
+                        await api('GET', '/auth/logout');
+                    set(() => ({user: null}));
+                    return true;
+                } catch (error: any) {
+                    return error.message;
+                }
+            },
+        }),
+        {
+            name: 'user-storage',
+            storage: createJSONStorage(() => sessionStorage),
         }
-    },
-}));
+    )
+);
+
