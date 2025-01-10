@@ -19,8 +19,8 @@ const Task = {
     },
 
     massCreateTask: (tasks, callback) => {
-        const query = 'INSERT INTO tasks (title, description, completed, user_id) VALUES ' + tasks.map(() => '(?, ?, ?, ?)').join(', ');
-        const params = tasks.reduce((acc, task) => [...acc, task.title, task.description, task.completed, task.user_id], []);
+        const query = 'INSERT INTO tasks (title, description, completed, user_id, created_at) VALUES ' + tasks.map(() => '(?, ?, ?, ?, ?)').join(', ');
+        const params = tasks.reduce((acc, task) => [...acc, task.title, task.description, task.completed, task.user_id, task.created_at], []);
         db.run(query, params, function (err) {
             callback(err, this.changes);
         });

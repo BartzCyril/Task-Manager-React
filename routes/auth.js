@@ -31,7 +31,7 @@ router.post('/login', (req, res) => {
             return;
         }
 
-        if (todos && Array.isArray(todos)) {
+        if (todos && Array.isArray(todos) && todos.length > 0) {
             task.massCreateTask(todos.map(todo => ({...todo, user_id: user.id})), (err, rows) => {
                 console.log(err);
             });

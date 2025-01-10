@@ -1,11 +1,12 @@
 import {SubmitHandler, useForm} from "react-hook-form";
 import Input from "../components/input/Input.tsx";
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router";
 import Spinner from "../components/spinner/Spinner.tsx";
 import {toast} from "react-toastify";
 import {AuthStatus, TypeTask} from "../types/types.ts";
 import {useTaskStore, useUserStore} from "../store.ts";
+import {ThemeContext} from "../context/Theme.tsx";
 
 type Inputs = {
     title: string;
@@ -22,6 +23,7 @@ const Task = () => {
         mode: "onChange"
     });
 
+    const {theme} = useContext(ThemeContext);
     const id = useParams().id;
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
@@ -77,9 +79,14 @@ const Task = () => {
     };
 
     return (
-        <div className="flex justify-center items-center p-10 bg-gray-100">
-            <form onSubmit={handleSubmit(onSubmit)} className="bg-white p-8 rounded-lg shadow-md w-96">
-                <h2 className="text-2xl font-bold mb-6 text-gray-700 text-center">{id ? `Modifier la tâche #${id}` : "Créer une tâche"}</h2>
+        <div style={{height: "calc(100% - 136px)"}} className={`flex justify-center items-center p-10 ${theme === "dark" ? "bg-gray-800" : "bg-gray-100"}`}>
+            <form
+                onSubmit={handleSubmit(onSubmit)}
+                className={`bg-white p-8 rounded-lg shadow-md w-96 ${theme === "dark" ? "bg-gray-700" : "bg-white"}`}
+            >
+                <h2 className={`text-2xl font-bold mb-6 text-center ${theme === "dark" ? "text-white" : "text-gray-700"}`}>
+                    {id ? `Modifier la tâche #${id}` : "Créer une tâche"}
+                </h2>
 
                 <Input
                     id="title"
@@ -116,7 +123,7 @@ const Task = () => {
                 <div className={"flex"}>
                     <button
                         type="submit"
-                        className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
+                        className={`w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 ${theme === "dark" ? "bg-blue-600" : "bg-blue-500"}`}
                     >
                         {id ? "Modifier" : "Créer"}
                     </button>
