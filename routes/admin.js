@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const users = require('../models/user');
+const tasks = require('../models/task')
 const loggedMiddleware = require('../middlewares/logged');
 const adminMiddleware = require('../middlewares/admin');
 const {checkValidityOfTheToken} = require('../middlewares/token');
@@ -20,6 +21,17 @@ router.get('/', [loggedMiddleware, checkValidityOfTheToken, adminMiddleware], (r
             return user.id !== userId && user.is_admin !== 1;
         });
         res.status(200).send({data: filteredUsers});
+    });
+});
+
+router.get('/tasks/user/:id', [loggedMiddleware, checkValidityOfTheToken, adminMiddleware], (req, res) => {
+    const userId = req.params.id;
+    tasks.getAllTaskByUserId(userId, (err, tasks) => {
+        if (err) {
+            res.status(500).send({message: `Une erreur est survenue lors de la récupération des tâches ${err.message}`});
+            return;
+        }
+        res.status(200).send({data: tasks});
     });
 });
 

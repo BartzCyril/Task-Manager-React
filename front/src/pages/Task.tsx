@@ -1,12 +1,11 @@
-import {SubmitHandler, useForm} from "react-hook-form";
-import Input from "../components/input/Input.tsx";
+import {SubmitHandler} from "react-hook-form";
 import {useContext, useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router";
-import Spinner from "../components/spinner/Spinner.tsx";
 import {toast} from "react-toastify";
 import {AuthStatus, TypeTask} from "../types/types.ts";
 import {useTaskStore, useUserStore} from "../store.ts";
 import {ThemeContext} from "../context/Theme.tsx";
+import TaskForm from "../components/form/TaskForm.tsx";
 
 type Inputs = {
     title: string;
@@ -14,19 +13,11 @@ type Inputs = {
 };
 
 const Task = () => {
-    const {
-        register,
-        handleSubmit,
-        formState: {errors},
-        setValue
-    } = useForm<Inputs>({
-        mode: "onChange"
-    });
-
     const {theme} = useContext(ThemeContext);
     const id = useParams().id;
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [task, setTask] = useState<TypeTask | null>(null);
     const tasks = useTaskStore(state => state.tasks);
     const updateTasks = useTaskStore(state => state.updateTasks);
     const deleteAllTasks = useTaskStore(state => state.deleteAllTasks);
@@ -41,13 +32,14 @@ const Task = () => {
                 toast(`Tâche #${id} non trouvée`, {type: "error", toastId: "createTask"});
                 navigate("/");
             } else {
-                setValue("title", task.title);
-                setValue("description", task.description);
+                setTask(task);
             }
         }
     }, [id]);
 
     const onSubmit: SubmitHandler<Inputs> = (data) => {
+        setLoading(true);
+
         let taskData: Partial<TypeTask> = { title: data.title, description: data.description };
 
         if (id) {
@@ -79,57 +71,8 @@ const Task = () => {
     };
 
     return (
-        <div style={{height: "calc(100% - 136px)"}} className={`flex justify-center items-center p-10 ${theme === "dark" ? "bg-gray-800" : "bg-gray-100"}`}>
-            <form
-                onSubmit={handleSubmit(onSubmit)}
-                className={`bg-white p-8 rounded-lg shadow-md w-96 ${theme === "dark" ? "bg-gray-700" : "bg-white"}`}
-            >
-                <h2 className={`text-2xl font-bold mb-6 text-center ${theme === "dark" ? "text-white" : "text-gray-700"}`}>
-                    {id ? `Modifier la tâche #${id}` : "Créer une tâche"}
-                </h2>
-
-                <Input
-                    id="title"
-                    label="Titre de la tâche"
-                    type="text"
-                    placeholder="Entrez le titre de la tâche"
-                    register={register}
-                    validationRules={{
-                        required: "Le titre est obligatoire.",
-                        minLength: {
-                            value: 3,
-                            message: "Le titre doit contenir au moins 3 caractères.",
-                        },
-                    }}
-                    errors={errors as any}
-                />
-
-                <Input
-                    id="description"
-                    label="Description"
-                    type="text"
-                    placeholder="Entrez la description de la tâche"
-                    register={register}
-                    validationRules={{
-                        required: "La description est obligatoire.",
-                        minLength: {
-                            value: 5,
-                            message: "La description doit contenir au moins 5 caractères.",
-                        },
-                    }}
-                    errors={errors as any}
-                />
-
-                <div className={"flex"}>
-                    <button
-                        type="submit"
-                        className={`w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 ${theme === "dark" ? "bg-blue-600" : "bg-blue-500"}`}
-                    >
-                        {id ? "Modifier" : "Créer"}
-                    </button>
-                    {loading && <Spinner />}
-                </div>
-            </form>
+        <div style={{height: "calc(100% - 96px)"}} className={`flex justify-center items-center p-10 ${theme === "dark" ? "bg-gray-800" : "bg-gray-100"}`}>
+            <TaskForm onSubmit={onSubmit} loading={loading} task={task}/>
         </div>
     );
 };

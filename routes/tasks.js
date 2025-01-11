@@ -79,7 +79,7 @@ router.post('/', [loggedMiddleware, checkValidityOfTheToken], (req, res) => {
 
 router.put('/', [loggedMiddleware, checkValidityOfTheToken], (req, res) => {
     const { id, title, description, completed } = req.body;
-    console.log(req.body);
+
     tasks.getTaskById(parseInt(id), (err, task) => {
         if(err){
             res.status(500).send({message :`Une erreur est survenue lors de la récupération de la tâche ${err.message}`});

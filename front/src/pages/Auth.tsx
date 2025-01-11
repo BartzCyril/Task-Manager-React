@@ -112,7 +112,7 @@ const LoginForm = () => {
     const password = watch("password");
 
     return (
-        <div style={{height: "calc(100% - 136px)"}} className={`flex justify-center items-center p-10 ${theme === "dark" ? "bg-gray-800" : "bg-gray-100"}`}>
+        <div style={{height: "calc(100% - 96px)"}} className={`flex justify-center items-center p-10 ${theme === "dark" ? "bg-gray-800" : "bg-gray-100"}`}>
             <form
                 onSubmit={handleSubmit(onSubmit)}
                 className={`bg-white p-8 rounded-lg shadow-md w-96 ${theme === "dark" ? "bg-gray-700" : "bg-white"}`}

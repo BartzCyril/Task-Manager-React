@@ -1,1 +1,1 @@
-/// <reference types="vite/client" />
+declare module 'react-modal'/// <reference types="vite/client" />

@@ -19,7 +19,7 @@ const HeaderLink = ({to, description}: HeaderLinkProps) => {
         <Link
             to={to}
             className={`hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-xs px-4 lg:px-5 py-2 lg:py-2.5 mr-2 focus:outline-none 
-            ${theme === 'dark' ? 'text-white dark:hover:bg-gray-700 dark:focus:ring-gray-800' : 'text-gray-800 hover:bg-gray-200 focus:ring-gray-300'}`}
+            ${theme === 'dark' ? 'text-white hover:bg-gray-700 focus:ring-gray-800' : 'text-gray-800 hover:bg-gray-200 focus:ring-gray-300'}`}
         >
             <p>{description}</p>
         </Link>

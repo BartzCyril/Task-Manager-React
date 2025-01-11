@@ -20,8 +20,8 @@ const ToggleTheme = () => {
                 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] 
                 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all`}
             ></div>
-            <span className={`ms-3 text-sm font-medium ${theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}`}>
-                {theme === 'dark' ? 'Mode sombre' : 'Mode clair'}
+            <span className={`ms-3 text-xs font-medium ${theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}`}>
+                {`Changer de mode (thème actuel : ${theme === 'dark' ? 'Mode sombre' : 'Mode clair'})`}
             </span>
         </label>
     );
