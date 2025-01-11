@@ -6,13 +6,7 @@ import {Link, useNavigate} from "react-router";
 import Spinner from "../components/spinner/Spinner.tsx";
 import {toast} from "react-toastify";
 import {ThemeContext} from "../context/Theme.tsx";
-
-type Inputs = {
-    email: string;
-    username: string;
-    password: string;
-    confirmPassword: string;
-}
+import {AuthInputs} from "../types/types.ts";
 
 const LoginForm = () => {
     const {
@@ -21,7 +15,7 @@ const LoginForm = () => {
         formState: {errors},
         watch,
         reset
-    } = useForm<Inputs>({
+    } = useForm<AuthInputs>({
         mode: "onChange"
     });
 
@@ -87,7 +81,7 @@ const LoginForm = () => {
     const authLogin = useUserStore((state) => state.login);
     const authRegister = useUserStore((state) => state.register);
 
-    const onSubmit: SubmitHandler<Inputs> = (data) => {
+    const onSubmit: SubmitHandler<AuthInputs> = (data) => {
         setLoading(true);
 
         const {username, password, email, confirmPassword} = data;

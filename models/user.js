@@ -9,7 +9,7 @@ const User = {
                 username TEXT NOT NULL,
                 password TEXT NOT NULL,
                 email TEXT UNIQUE NOT NULL,
-                is_admin INTEGER DEFAULT 0
+                role TEXT NOT NULL DEFAULT 'user'
             )
         `;
         db.run(query, (err) => {
@@ -18,7 +18,7 @@ const User = {
     },
 
     createUser: (user, callback) => {
-        const query = 'INSERT INTO users (username, password, email, is_admin) VALUES (?, ?, ?, 0)';
+        const query = 'INSERT INTO users (username, password, email) VALUES (?, ?, ?)';
         const params = [user.username, user.hash, user.email];
         db.run(query, params, function (err) {
             callback(err, { id: this.lastID, ...user });
@@ -48,7 +48,7 @@ const User = {
 
     authenticate: (username, password, callback) => {
         User.findUserByUsername(username, (err, user) => {
-            if (user != undefined && bcrypt.compareSync(password, user.password)) {
+            if (user !== undefined && bcrypt.compareSync(password, user.password)) {
                 user.connected = true;
                 return callback(err, user)
             }
@@ -62,6 +62,12 @@ const User = {
     deleteUser: (id, callback) => {
         db.run('DELETE FROM users WHERE id = ?', [id], (err) => {
             callback(err, {id});
+        });
+    },
+
+    updateRole: (id, role, callback) => {
+        db.run('UPDATE users SET role = ? WHERE id = ?', [role, id], (err) => {
+            callback(err, {id, role});
         });
     }
 };

@@ -7,18 +7,22 @@ const adminMiddleware = require('../middlewares/admin');
 const {checkValidityOfTheToken} = require('../middlewares/token');
 
 router.get('/', [loggedMiddleware, checkValidityOfTheToken, adminMiddleware], (req, res) => {
-    const userId = req.session.userid;
-    const username = req.session.username;
+    const role = req.session.role;
+    const id = req.session.userid;
     users.getAllUsers((err, users) => {
         if (err) {
             res.status(500).send({message: `Une erreur est survenue lors de la récupération des utilisateurs ${err.message}`});
             return;
         }
         const filteredUsers = users.filter(user => {
-            if ((username === 'alex' || username === 'cyril') && (user.username === 'alex' || user.username === 'cyril')) {
-                return false;
+            if (role === 'superAdmin') {
+                return user.role !== 'superAdmin';
+            } else if (role === 'admin') {
+                return user.role !== 'superAdmin' && user.role !== 'admin' && user.id !== id;
             }
-            return user.id !== userId && user.is_admin !== 1;
+            else {
+                return user.role !== 'superAdmin' && user.id !== id;
+            }
         });
         res.status(200).send({data: filteredUsers});
     });
@@ -49,6 +53,29 @@ router.delete('/:id', [loggedMiddleware, checkValidityOfTheToken, adminMiddlewar
             return;
         }
         res.status(200).send({message: `Utilisateur #${id} supprimé avec succès`});
+    });
+});
+
+router.put('/user/role', [loggedMiddleware, checkValidityOfTheToken, adminMiddleware], (req, res) => {
+    const id = req.body.id;
+    const role = req.body.role;
+
+    if (!id) {
+        res.status(400).send({message: 'Id is required'});
+        return;
+    }
+
+    if (!role) {
+        res.status(400).send({message: 'Role is required'});
+        return;
+    }
+
+    users.updateRole(id, role, (err, result) => {
+        if (err) {
+            res.status(500).send({message: `Une erreur est survenue lors de la modification du rôle de l'utilisateur ${err.message}`});
+            return;
+        }
+        res.status(200).send({message: `Rôle de l'utilisateur #${id} modifié avec succès`});
     });
 });
 

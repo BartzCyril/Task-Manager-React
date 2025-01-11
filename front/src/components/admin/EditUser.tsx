@@ -1,24 +1,28 @@
 import {useContext, useEffect, useState} from "react";
 import Spinner from "../spinner/Spinner.tsx";
 import {ThemeContext} from "../../context/Theme.tsx";
-import {AuthStatus, User} from "../../types/types.ts";
+import {AuthStatus, Role, User} from "../../types/types.ts";
 import {api} from "../../api/api.ts";
 import {toast} from "react-toastify";
 import {useTaskStore, useUserStore} from "../../store.ts";
 import {useNavigate} from "react-router";
+import EditUserRoleModal from "./EditUserRoleModal.tsx";
 
 type EditUserProps = {
     setEditUserTasks: (user: User) => void;
 };
 
 const EditUser = ({setEditUserTasks}: EditUserProps) => {
-    const [users, setUsers] = useState<(User & { is_admin: boolean })[]>([]);
+    const admin = useUserStore(state => state.user);
+    const [users, setUsers] = useState<User[]>([]);
     const logout = useUserStore(state => state.logout);
     const [loading, setLoading] = useState(true);
     const [deleting, setDeleting] = useState(false);
     const {theme} = useContext(ThemeContext);
     const navigate = useNavigate();
     const deleteAllTasks = useTaskStore(state => state.deleteAllTasks);
+    const [editUserRole, setEditUserRole] = useState<User | null>(null);
+    const [openEditUserRole, setOpenEditUserRole] = useState(false);
 
     useEffect(() => {
         api("GET", "/admin")
@@ -51,6 +55,8 @@ const EditUser = ({setEditUserTasks}: EditUserProps) => {
 
     return (
         <>
+            <EditUserRoleModal modalIsOpen={openEditUserRole} setModalIsOpen={setOpenEditUserRole} user={editUserRole as User} users={users} setUsers={setUsers}/>
+
             <div className="text-center mb-4">
                 <div className="flex justify-center align-middle gap-2">
                     <h1 className={`text-2xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
@@ -83,9 +89,17 @@ const EditUser = ({setEditUserTasks}: EditUserProps) => {
                             </th>
                             <td className="px-6 py-4">{user.username}</td>
                             <td className="px-6 py-4">{user.email}</td>
-                            <td className="px-6 py-4">{user.is_admin ? "Admin" : "Utilisateur"}</td>
+                            <td className="px-6 py-4">{user.role}</td>
                             <td className="px-6 py-4">
                                 <div className="flex flex-col gap-1 justify-center align-middle">
+                                    {(admin?.role === Role.SUPER_ADMIN || user.role === Role.USER) && <button
+                                        onClick={() => {
+                                            setEditUserRole(user);
+                                            setOpenEditUserRole(true);
+                                        }}
+                                        className="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-2 rounded text-sm">
+                                        Gestion du rôle de l'utilisateur
+                                    </button>}
                                     <button
                                         onClick={() => setEditUserTasks(user)}
                                         className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1 px-2 rounded text-sm">

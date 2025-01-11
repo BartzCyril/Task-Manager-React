@@ -1,6 +1,6 @@
 import Modal from 'react-modal';
 import {SubmitHandler} from "react-hook-form";
-import {AuthStatus, TypeTask} from "../../types/types.ts";
+import {AuthStatus, TaskInputs, TypeTask} from "../../types/types.ts";
 import {toast} from "react-toastify";
 import {useState} from "react";
 import {api} from "../../api/api.ts";
@@ -19,12 +19,6 @@ const customStyles = {
     },
 };
 
-type Inputs = {
-    title: string;
-    description: string;
-    completed: boolean;
-};
-
 type EditUserTaskModalProps = {
     modalIsOpen: boolean;
     setModalIsOpen: (modalIsOpen: boolean) => void;
@@ -39,7 +33,7 @@ const EditUserTaskModal = ({modalIsOpen, setModalIsOpen, task, tasks, setTasks}:
     const navigate = useNavigate();
     const deleteAllTasks = useTaskStore(state => state.deleteAllTasks);
 
-    const onSubmit: SubmitHandler<Inputs> = (data) => {
+    const onSubmit: SubmitHandler<TaskInputs> = (data) => {
         setLoading(true);
 
         api('PUT', '/todos', {

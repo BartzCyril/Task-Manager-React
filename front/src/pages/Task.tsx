@@ -2,15 +2,10 @@ import {SubmitHandler} from "react-hook-form";
 import {useContext, useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router";
 import {toast} from "react-toastify";
-import {AuthStatus, TypeTask} from "../types/types.ts";
+import {AuthStatus, TaskInputs, TypeTask} from "../types/types.ts";
 import {useTaskStore, useUserStore} from "../store.ts";
 import {ThemeContext} from "../context/Theme.tsx";
 import TaskForm from "../components/form/TaskForm.tsx";
-
-type Inputs = {
-    title: string;
-    description: string;
-};
 
 const Task = () => {
     const {theme} = useContext(ThemeContext);
@@ -37,7 +32,7 @@ const Task = () => {
         }
     }, [id]);
 
-    const onSubmit: SubmitHandler<Inputs> = (data) => {
+    const onSubmit: SubmitHandler<TaskInputs> = (data) => {
         setLoading(true);
 
         let taskData: Partial<TypeTask> = { title: data.title, description: data.description };

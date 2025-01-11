@@ -24,3 +24,16 @@ export type User = {
     id: number;
     email: string;
 }
+
+export type TaskInputs = {
+    title: string;
+    description: string;
+    completed: boolean;
+};
+
+export type AuthInputs = {
+    email: string;
+    username: string;
+    password: string;
+    confirmPassword: string;
+}

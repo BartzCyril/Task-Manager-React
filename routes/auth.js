@@ -37,8 +37,6 @@ router.post('/login', (req, res) => {
             });
         }
 
-        user.is_admin = user.is_admin === 1;
-
         const token = jwt.sign({
             exp: Math.floor(Date.now() / 1000) + (60 * 60),
             data: user.id
@@ -50,11 +48,12 @@ router.post('/login', (req, res) => {
 
         req.session.userid = user.id;
         req.session.isLogged = true;
-        req.session.isAdmin = user.is_admin || user.username === "alex" || user.username === "cyril";
+        req.session.role = user.role;
+
         res.status(200).send({
             data: {
                 username: user.username,
-                role: (user.username === "alex" || user.username === "cyril") ? "superAdmin" : user.is_admin ? 'admin' : 'user'
+                role: user.role
             }
         });
     });
