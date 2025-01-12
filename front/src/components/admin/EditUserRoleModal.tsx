@@ -1,12 +1,13 @@
 import {useNavigate} from "react-router";
 import {AuthStatus, Role, User} from "../../types/types.ts";
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {SubmitHandler, useForm} from "react-hook-form";
 import {useTaskStore, useUserStore} from "../../store.ts";
 import {api} from "../../api/api.ts";
 import {toast} from "react-toastify";
 import Spinner from "../spinner/Spinner.tsx";
 import Modal from 'react-modal';
+import {ThemeContext} from "../../context/Theme.tsx";
 
 type EditUserRoleModalProps = {
     modalIsOpen: boolean;
@@ -37,6 +38,7 @@ const EditUserRoleModal = ({modalIsOpen, setModalIsOpen, user, users, setUsers}:
     const navigate = useNavigate();
     const deleteAllTasks = useTaskStore(state => state.deleteAllTasks);
     const {register, handleSubmit, formState: {errors}, setValue} = useForm<Inputs>();
+    const {theme} = useContext(ThemeContext);
 
     useEffect(() => {
         if (user) {
@@ -78,17 +80,27 @@ const EditUserRoleModal = ({modalIsOpen, setModalIsOpen, user, users, setUsers}:
         <Modal
             isOpen={modalIsOpen}
             onRequestClose={() => setModalIsOpen(false)}
-            style={customStyles}
+            style={{
+                ...customStyles,
+                content: {
+                    ...customStyles.content,
+                    background: theme === 'dark' ? '#2d3748' : '#f7fafc',
+                    color: theme === 'dark' ? 'white' : 'black',
+                }
+            }}
             contentLabel="Modifier le rôle de l'utilisateur"
         >
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+            <form
+                onSubmit={handleSubmit(onSubmit)}
+                className={`flex flex-col gap-4 ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-black'} p-6 rounded`}
+            >
                 <h1 className="text-xl font-bold">Modifier le rôle de l'utilisateur</h1>
                 <div className="flex flex-col gap-2">
                     <label htmlFor="role">Rôle</label>
                     <select
                         {...register("role", {required: "Ce champ est requis"})}
                         id="role"
-                        className="border border-gray-300 rounded p-2"
+                        className={`border rounded p-2 ${theme === 'dark' ? 'border-gray-600 bg-gray-700' : 'border-gray-300 bg-white'}`}
                     >
                         <option value={Role.USER}>Utilisateur</option>
                         <option value={Role.ADMIN}>Administrateur</option>
@@ -100,13 +112,13 @@ const EditUserRoleModal = ({modalIsOpen, setModalIsOpen, user, users, setUsers}:
                     <button
                         type="button"
                         onClick={() => setModalIsOpen(false)}
-                        className="bg-red-500 text-white p-2 rounded"
+                        className={`p-2 rounded ${theme === 'dark' ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'} text-white`}
                     >
                         Annuler
                     </button>
                     <button
                         type="submit"
-                        className="bg-green-500 text-white p-2 rounded"
+                        className={`p-2 rounded ${theme === 'dark' ? 'bg-green-600 hover:bg-green-700' : 'bg-green-500 hover:bg-green-600'} text-white`}
                     >
                         {loading ? <Spinner/> : "Modifier"}
                     </button>

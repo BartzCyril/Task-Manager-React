@@ -27,7 +27,7 @@ const Input = ({
         <div className="mb-4">
             <label
                 htmlFor={id}
-                className={`block font-medium mb-2`}
+                className={`block font-medium mb-2 ${theme === "dark" ? "text-gray-300" : "text-black"}`}
             >
                 {label}
             </label>

@@ -66,9 +66,9 @@ const Task = () => {
     };
 
     return (
-        <div style={{height: "calc(100% - 96px)"}} className={`flex justify-center items-center p-10 ${theme === "dark" ? "bg-gray-800" : "bg-gray-100"}`}>
+        <section style={{height: "calc(100% - 96px)"}} className={`flex justify-center items-center p-10 ${theme === "dark" ? "bg-gray-800" : "bg-gray-100"}`}>
             <TaskForm onSubmit={onSubmit} loading={loading} task={task}/>
-        </div>
+        </section>
     );
 };
 

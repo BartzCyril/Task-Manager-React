@@ -42,9 +42,9 @@ const TaskForm = ({onSubmit, loading, task, showCompleted}: TaskFormProps) => {
     return (
         <form
             onSubmit={handleSubmit(onSubmit)}
-            className={`bg-white p-8 rounded-lg shadow-md w-96 ${theme === "dark" ? "bg-gray-700" : "bg-white"}`}
+            className={`p-8 rounded-lg shadow-md w-96 ${theme === "dark" ? "bg-gray-700" : "bg-white"}`}
         >
-            <h2 className={`text-2xl font-bold mb-6 text-center`}>
+            <h2 className={`text-2xl font-bold mb-6 text-center ${theme === "dark" ? "text-gray-300" : "text-black"}`}>
                 {task ? `Modifier la tâche #${task.id}` : "Créer une tâche"}
             </h2>
 

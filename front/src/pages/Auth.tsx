@@ -106,12 +106,12 @@ const LoginForm = () => {
     const password = watch("password");
 
     return (
-        <div style={{height: "calc(100% - 96px)"}} className={`flex justify-center items-center p-10 ${theme === "dark" ? "bg-gray-800" : "bg-gray-100"}`}>
+        <section style={{height: "calc(100% - 96px)"}} className={`flex justify-center items-center p-10 ${theme === "dark" ? "bg-gray-800" : "bg-gray-100"}`}>
             <form
                 onSubmit={handleSubmit(onSubmit)}
-                className={`bg-white p-8 rounded-lg shadow-md w-96 ${theme === "dark" ? "bg-gray-700" : "bg-white"}`}
+                className={`p-8 rounded-lg shadow-md w-96 ${theme === "dark" ? "bg-gray-700" : "bg-white"}`}
             >
-                <h2 className={`text-2xl font-bold mb-6 text-center ${theme === "dark" ? "text-white" : "text-gray-700"}`}>
+                <h2 className={`text-2xl font-bold mb-6 text-center ${theme === "dark" ? "text-gray-300" : "text-black"}`}>
                     {isLogin ? "Connexion" : "Inscription"}
                 </h2>
 
@@ -213,7 +213,7 @@ const LoginForm = () => {
                 </div>
 
                 {isLogin && (
-                    <p className={`mt-4 text-center ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}>
+                    <p className={`mt-4 text-center ${theme === "dark" ? "text-gray-300" : "text-black"}`}>
                         Vous n'avez pas de compte ?
                         <Link to="/register" className="ml-2 text-blue-600 font-semibold hover:text-blue-700">
                             S'inscrire
@@ -221,7 +221,7 @@ const LoginForm = () => {
                     </p>
                 )}
             </form>
-        </div>
+        </section>
     );
 };
 

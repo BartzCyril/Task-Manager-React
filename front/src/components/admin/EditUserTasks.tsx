@@ -51,8 +51,13 @@ const EditUserTasks = ({user, setEditUserTasks}: EditUserTasksProps) => {
         setDeleting(true);
         api("DELETE", '/todos/', {}, id.toString())
             .then(() => {
-                setTasks(tasks.filter((task) => task.id !== id));
+                const newTasks = tasks.filter((task) => task.id !== id);
                 toast(`La tâche ${title} a été supprimée avec succès.`, {type: "success", toastId: "delete-task"});
+                if (newTasks.length === 0) {
+                    setEditUserTasks(null);
+                } else {
+                    setTasks(newTasks);
+                }
             })
             .catch((error) => {
                 toast(error.message, {type: "error", toastId: "get-tasks"});
@@ -89,58 +94,64 @@ const EditUserTasks = ({user, setEditUserTasks}: EditUserTasksProps) => {
                 </button>
             </div>
 
-            {!loading && <div className="relative overflow-x-auto">
-                <table className="w-full text-sm text-left text-gray-500 bg-white">
-                    <thead className="text-xs text-gray-700 bg-gray-50">
-                    <tr>
-                        <th scope="col" className="px-6 py-3">
-                            Titre
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Description
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Complété
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Action
-                        </th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {tasks.map((task) => (
-                        <tr key={`task-${task.id}`} className="border-b bg-white">
-                            <td className="px-6 py-4 font-medium text-gray-900">
-                                {task.title}
-                            </td>
-                            <td className="px-6 py-4">
-                                {task.description}
-                            </td>
-                            <td className="px-6 py-4">
-                                {task.completed ? "Oui" : "Non"}
-                            </td>
-                            <td className="px-6 py-4 flex gap-2">
-                                <button
-                                    onClick={() => {
-                                        setTask(task);
-                                        setOpen(true);
-                                    }}
-                                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded text-sm"
-                                >
-                                    Éditer
-                                </button>
-                                <button
-                                    onClick={() => deleteTask(task.id, task.title)}
-                                    className="flex bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded text-sm"
-                                >
-                                    Supprimer {deleting && <Spinner/>}
-                                </button>
-                            </td>
+            {!loading && (
+                <div className="relative overflow-x-auto">
+                    <table
+                        className={`w-full text-sm text-left rtl:text-right ${theme === "dark" ? "text-gray-400 bg-gray-800" : "text-gray-500 bg-white"}`}
+                    >
+                        <thead
+                            className={`text-xs ${theme === "dark" ? "text-gray-400 bg-gray-700" : "text-gray-700 bg-gray-50"}`}
+                        >
+                        <tr>
+                            <th scope="col" className="px-6 py-3">Titre</th>
+                            <th scope="col" className="px-6 py-3">Description</th>
+                            <th scope="col" className="px-6 py-3">Complété</th>
+                            <th scope="col" className="px-6 py-3">Action</th>
                         </tr>
-                    ))}
-                    </tbody>
-                </table>
-            </div>}
+                        </thead>
+                        <tbody>
+                        {tasks.map((task) => (
+                            <tr
+                                key={`task-${task.id}`}
+                                className={`border-b ${theme === "dark" ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+                            >
+                                <th
+                                    scope="row"
+                                    className={`px-6 py-4 font-medium whitespace-nowrap ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+                                >
+                                    {task.title}
+                                </th>
+                                <td className="px-6 py-4">{task.description}</td>
+                                <td className="px-6 py-4">{task.completed ? "Oui" : "Non"}</td>
+                                <td className="px-6 py-4">
+                                    <div className="flex flex-col gap-1 justify-center align-middle">
+                                        <button
+                                            onClick={() => {
+                                                setTask(task);
+                                                setOpen(true);
+                                            }}
+                                            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded text-sm"
+                                        >
+                                            Éditer
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setDeleting(true);
+                                                deleteTask(task.id, task.title);
+                                            }}
+                                            className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded text-sm flex"
+                                        >
+                                            Supprimer
+                                            {deleting && <Spinner />}
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
         </>
     );
 };

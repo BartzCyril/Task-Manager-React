@@ -91,7 +91,7 @@ function App() {
                                     <select
                                         value={sortBy}
                                         onChange={(e) => setSortBy(e.target.value)}
-                                        className="py-2 px-3 rounded border"
+                                        className={`py-2 px-3 rounded border ${theme === "dark" ? "bg-gray-700 text-gray-300" : "bg-white"}`}
                                         id="sortBy"
                                     >
                                         <option value="date">Date de création</option>
@@ -106,7 +106,7 @@ function App() {
                                     <select
                                         value={sortOrder}
                                         onChange={(e) => setSortOrder(e.target.value)}
-                                        className="py-2 px-3 rounded border"
+                                        className={`py-2 px-3 rounded border ${theme === "dark" ? "bg-gray-700 text-gray-300" : "bg-white"}`}
                                         id="sortOrder"
                                     >
                                         <option value="desc">Descendant</option>
@@ -121,7 +121,7 @@ function App() {
                                 {sortedTasks.map((task) => (
                                     <li
                                         key={task.id}
-                                        className={`bg-white shadow-md rounded-lg p-4 mb-2 flex items-center justify-between ${theme === "dark" ? "bg-gray-700" : "bg-white"}`}
+                                        className={`shadow-md rounded-lg p-4 mb-2 flex items-center justify-between ${theme === "dark" ? "bg-gray-700" : "bg-white"}`}
                                     >
                                         <div className="flex items-center">
                                             <input

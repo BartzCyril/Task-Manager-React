@@ -38,7 +38,7 @@ const Header = () => {
             <nav className={`px-4 py-2.5 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
                 <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
                     <Link to={"/"} className={"flex"}>
-                        <img src="/logo.png" className="mr-3 h-6 sm:h-9" alt="Projet Logo"/>
+                        <img src="/logo.png" className={`mr-3 h-6 sm:h-9`} alt="Projet Logo"/>
                         <span className={`self-center text-xl font-semibold whitespace-nowrap ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
                             Dumb Task Manager
                         </span>

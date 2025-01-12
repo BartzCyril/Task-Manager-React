@@ -2,11 +2,12 @@ import Modal from 'react-modal';
 import {SubmitHandler} from "react-hook-form";
 import {AuthStatus, TaskInputs, TypeTask} from "../../types/types.ts";
 import {toast} from "react-toastify";
-import {useState} from "react";
+import {useContext, useState} from "react";
 import {api} from "../../api/api.ts";
 import TaskForm from "../form/TaskForm.tsx";
 import {useTaskStore, useUserStore} from "../../store.ts";
 import {useNavigate} from "react-router";
+import {ThemeContext} from "../../context/Theme.tsx";
 
 const customStyles = {
     content: {
@@ -32,6 +33,7 @@ const EditUserTaskModal = ({modalIsOpen, setModalIsOpen, task, tasks, setTasks}:
     const logout = useUserStore(state => state.logout);
     const navigate = useNavigate();
     const deleteAllTasks = useTaskStore(state => state.deleteAllTasks);
+    const {theme} = useContext(ThemeContext);
 
     const onSubmit: SubmitHandler<TaskInputs> = (data) => {
         setLoading(true);
@@ -70,7 +72,14 @@ const EditUserTaskModal = ({modalIsOpen, setModalIsOpen, task, tasks, setTasks}:
         <Modal
             isOpen={modalIsOpen}
             onRequestClose={() => setModalIsOpen(false)}
-            style={customStyles}
+            style={{
+                ...customStyles,
+                content: {
+                    ...customStyles.content,
+                    background: theme === 'dark' ? '#2d3748' : '#f7fafc',
+                    color: theme === 'dark' ? 'white' : 'black',
+                }
+            }}
         >
             <TaskForm onSubmit={onSubmit} loading={loading} task={task} showCompleted={true}/>
         </Modal>

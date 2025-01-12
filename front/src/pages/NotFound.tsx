@@ -6,7 +6,7 @@ const NotFound = () => {
     const { theme } = useContext(ThemeContext);
 
     return (
-        <div style={{height: "calc(100% - 96px)"}} className={`py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6 ${theme === "dark" ? "bg-gray-800" : "bg-white"}`}>
+        <section style={{height: "calc(100% - 96px)"}} className={`py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6 ${theme === "dark" ? "bg-gray-800" : "bg-white"}`}>
             <div className="mx-auto max-w-screen-sm text-center">
                 <h1 className={`mb-4 text-7xl tracking-tight font-extrabold lg:text-9xl ${theme === "dark" ? "text-white" : "text-primary-600"}`}>
                     404
@@ -25,7 +25,7 @@ const NotFound = () => {
                     Retour à la page d'accueil
                 </Link>
             </div>
-        </div>
+        </section>
     );
 }
 
