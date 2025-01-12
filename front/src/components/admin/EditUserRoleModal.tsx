@@ -1,6 +1,6 @@
 import {useNavigate} from "react-router";
 import {AuthStatus, Role, User} from "../../types/types.ts";
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useState} from "react";
 import {SubmitHandler, useForm} from "react-hook-form";
 import {useTaskStore, useUserStore} from "../../store.ts";
 import {api} from "../../api/api.ts";
@@ -36,8 +36,6 @@ const EditUserRoleModal = ({modalIsOpen, setModalIsOpen, user, users, setUsers}:
     const logout = useUserStore(state => state.logout);
     const navigate = useNavigate();
     const deleteAllTasks = useTaskStore(state => state.deleteAllTasks);
-    const admin = useUserStore(state => state.user);
-
     const {register, handleSubmit, formState: {errors}, setValue} = useForm<Inputs>();
 
     useEffect(() => {
@@ -76,25 +74,6 @@ const EditUserRoleModal = ({modalIsOpen, setModalIsOpen, user, users, setUsers}:
             });
     }
 
-    const options = useMemo(() => {
-        if (admin?.role === Role.SUPER_ADMIN) {
-            return (
-                <>
-                    <option value={Role.USER}>Utilisateur</option>
-                    <option value={Role.ADMIN}>Administrateur</option>
-                    <option value={Role.SUPER_ADMIN}>Super administrateur</option>
-                </>
-        );
-        } else if (admin?.role === Role.ADMIN) {
-            return (
-                <>
-                    <option value={Role.USER}>Utilisateur</option>
-                    <option value={Role.ADMIN}>Administrateur</option>
-                </>
-            );
-        }
-    }, [admin])
-
     return (
         <Modal
             isOpen={modalIsOpen}
@@ -111,7 +90,9 @@ const EditUserRoleModal = ({modalIsOpen, setModalIsOpen, user, users, setUsers}:
                         id="role"
                         className="border border-gray-300 rounded p-2"
                     >
-                        {options}
+                        <option value={Role.USER}>Utilisateur</option>
+                        <option value={Role.ADMIN}>Administrateur</option>
+                        <option value={Role.SUPER_ADMIN}>Super administrateur</option>
                     </select>
                     {errors.role && <p className="text-red-500 text-sm">{errors.role.message}</p>}
                 </div>

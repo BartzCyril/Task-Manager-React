@@ -4,6 +4,7 @@ const users = require('../models/user');
 const tasks = require('../models/task')
 const loggedMiddleware = require('../middlewares/logged');
 const adminMiddleware = require('../middlewares/admin');
+const superAdminMiddleware = require('../middlewares/superAdmin');
 const {checkValidityOfTheToken} = require('../middlewares/token');
 
 router.get('/', [loggedMiddleware, checkValidityOfTheToken, adminMiddleware], (req, res) => {
@@ -56,7 +57,7 @@ router.delete('/:id', [loggedMiddleware, checkValidityOfTheToken, adminMiddlewar
     });
 });
 
-router.put('/user/role', [loggedMiddleware, checkValidityOfTheToken, adminMiddleware], (req, res) => {
+router.put('/user/role', [loggedMiddleware, checkValidityOfTheToken, adminMiddleware, superAdminMiddleware], (req, res) => {
     const id = req.body.id;
     const role = req.body.role;
 

@@ -92,7 +92,7 @@ const EditUser = ({setEditUserTasks}: EditUserProps) => {
                             <td className="px-6 py-4">{user.role}</td>
                             <td className="px-6 py-4">
                                 <div className="flex flex-col gap-1 justify-center align-middle">
-                                    {(admin?.role === Role.SUPER_ADMIN || user.role === Role.USER) && <button
+                                    {(admin?.role === Role.SUPER_ADMIN) && <button
                                         onClick={() => {
                                             setEditUserRole(user);
                                             setOpenEditUserRole(true);

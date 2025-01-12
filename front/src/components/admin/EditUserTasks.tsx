@@ -15,6 +15,7 @@ type EditUserTasksProps = {
 
 const EditUserTasks = ({user, setEditUserTasks}: EditUserTasksProps) => {
     const [loading, setLoading] = useState(true);
+    const [deleting, setDeleting] = useState(false);
     const [tasks, setTasks] = useState<TypeTask[]>([]);
     const [task, setTask] = useState<TypeTask | null>(null);
     const {theme} = useContext(ThemeContext);
@@ -45,6 +46,26 @@ const EditUserTasks = ({user, setEditUserTasks}: EditUserTasksProps) => {
                 setLoading(false);
             });
     }, []);
+
+    const deleteTask = (id: number, title: string) => {
+        setDeleting(true);
+        api("DELETE", '/todos/', {}, id.toString())
+            .then(() => {
+                setTasks(tasks.filter((task) => task.id !== id));
+                toast(`La tâche ${title} a été supprimée avec succès.`, {type: "success", toastId: "delete-task"});
+            })
+            .catch((error) => {
+                toast(error.message, {type: "error", toastId: "get-tasks"});
+                if (error.message === AuthStatus.NOT_AUTHENTICATED) {
+                    logout(false);
+                    navigate("/");
+                    deleteAllTasks();
+                }
+            })
+            .finally(() => {
+                setDeleting(false);
+            });
+    }
 
     return (
         <>
@@ -98,7 +119,7 @@ const EditUserTasks = ({user, setEditUserTasks}: EditUserTasksProps) => {
                             <td className="px-6 py-4">
                                 {task.completed ? "Oui" : "Non"}
                             </td>
-                            <td className="px-6 py-4">
+                            <td className="px-6 py-4 flex gap-2">
                                 <button
                                     onClick={() => {
                                         setTask(task);
@@ -107,6 +128,12 @@ const EditUserTasks = ({user, setEditUserTasks}: EditUserTasksProps) => {
                                     className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded text-sm"
                                 >
                                     Éditer
+                                </button>
+                                <button
+                                    onClick={() => deleteTask(task.id, task.title)}
+                                    className="flex bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded text-sm"
+                                >
+                                    Supprimer {deleting && <Spinner/>}
                                 </button>
                             </td>
                         </tr>
