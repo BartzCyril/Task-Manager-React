@@ -1,4 +1,4 @@
-# Dumb Task Manager
+# Gestionnaire de Tâches (React)
 
 # MDV - Tests et sécurité des applications - PROJET
 
