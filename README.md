@@ -1,4 +1,4 @@
-# Gestionnaire de Tâches (React)
+# Gestionnaire de Tâches
 
 # MDV - Tests et sécurité des applications - PROJET
 
